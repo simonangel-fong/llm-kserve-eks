@@ -4,6 +4,10 @@ data "aws_caller_identity" "current" {}
 
 data "aws_partition" "current" {}
 
+data "aws_iam_role" "autoscaling_service_linked" {
+  name = "AWSServiceRoleForAutoScaling"
+}
+
 data "aws_iam_policy_document" "platform_kms" {
   statement {
     sid       = "EnableIAMPermissions"
@@ -40,6 +44,42 @@ data "aws_iam_policy_document" "platform_kms" {
       values = [
         "arn:${data.aws_partition.current.partition}:logs:${local.aws_region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/eks/${local.eks_cluster_name}/cluster"
       ]
+    }
+  }
+
+  statement {
+    sid    = "AllowAutoScalingEncryptedVolumes"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:Encrypt",
+      "kms:GenerateDataKey*",
+      "kms:ReEncrypt*",
+    ]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_iam_role.autoscaling_service_linked.arn]
+    }
+  }
+
+  statement {
+    sid       = "AllowAutoScalingGrant"
+    effect    = "Allow"
+    actions   = ["kms:CreateGrant"]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_iam_role.autoscaling_service_linked.arn]
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "kms:GrantIsForAWSResource"
+      values   = ["true"]
     }
   }
 }

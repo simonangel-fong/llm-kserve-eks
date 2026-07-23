@@ -69,3 +69,18 @@ output "eks_administrator_principal_arn" {
   description = "IAM principal granted cluster-administrator access through an EKS access entry."
   value       = aws_eks_access_entry.administrator.principal_arn
 }
+
+output "eks_pod_identity_agent_version" {
+  description = "Pinned EKS Pod Identity Agent add-on version selected for this cluster."
+  value       = aws_eks_addon.pod_identity_agent.addon_version
+}
+
+output "eks_vpc_cni_version" {
+  description = "Pinned VPC CNI add-on version selected for this cluster."
+  value       = aws_eks_addon.vpc_cni.addon_version
+}
+
+output "eks_general_node_group_name" {
+  description = "Name of the general-purpose EKS managed node group."
+  value       = aws_eks_node_group.general.node_group_name
+}

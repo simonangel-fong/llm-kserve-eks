@@ -229,15 +229,37 @@ IAM prerequisite layer status: **Applied — July 22, 2026**
   role access only to the platform KMS key.
 - Creates no EKS cluster, node group, EC2 instance, or Kubernetes resource.
 
-EKS control-plane layer status: **Planned — awaiting manual apply**
+EKS control-plane layer status: **Applied — July 22, 2026**
 
-- Saved plan: `infra/eks-control-plane.tfplan` (ignored by Git)
-- Plan summary: 4 resources to add, 2 to update in place, 0 to destroy
+- Applied plan: `infra/eks-control-plane.tfplan` (ignored by Git)
+- Applied changes: 4 resources added, 2 updated in place, 0 destroyed
 - Creates the EKS 1.35 control plane, encrypted 30-day CloudWatch log group,
   administrator access entry, and cluster-admin policy association.
 - Updates the platform KMS key policy for the EKS log group. The EBS CSI inline
   policy is recalculated against the same unchanged key ARN.
 - Creates no managed node group, EC2 instance, or Kubernetes add-on.
+
+EKS networking bootstrap layer status: **Applied — July 22, 2026**
+
+- Applied plan: `infra/eks-network-addons.tfplan` (ignored by Git)
+- Applied resources: 3 added, 0 changed, 0 destroyed
+- Pins EKS Pod Identity Agent `v1.3.10-eksbuild.3` and VPC CNI
+  `v1.22.4-eksbuild.3`, both selected as the newest EKS 1.35-compatible builds.
+- Associates the `kube-system/aws-node` service account with the dedicated VPC
+  CNI Pod Identity role before worker nodes are created.
+- Creates no node group, EC2 instance, storage driver, or application workload.
+
+General node-group layer status: **Planned — awaiting manual apply**
+
+- Saved plan: `infra/eks-general-nodes.tfplan` (ignored by Git)
+- Plan summary: 2 resources to add, 2 to update in place, 0 to destroy
+- Creates one AL2023 `t3.large` On-Demand managed node group with `1 / 1 / 3`
+  scaling and the `workload=general` label.
+- Creates a launch template with an encrypted 50 GiB gp3 root volume, IMDSv2
+  required, a hop limit of one, and termination cleanup.
+- Extends the platform KMS key policy for the existing Auto Scaling service-linked
+  role. The EBS CSI inline policy is recalculated against the unchanged key ARN.
+- Creates no GPU node, storage add-on, Helm release, or application workload.
 
 Implement `eks.tf` and the base portions of `iam.tf`.
 
