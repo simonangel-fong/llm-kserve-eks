@@ -146,6 +146,11 @@ Exit criteria:
 
 ### Phase 2: Create the Terraform state bootstrap stack
 
+Status: **Complete externally** — the existing
+`simonangelfong-terraform-backend` bucket in `ca-central-1` is configured through
+the ignored `infra/backend.hcl`. The infrastructure state key is
+`llm-ollama-eks/dev/terraform.tfstate` and native S3 lockfiles are enabled.
+
 Implement the independent `bootstrap/` Terraform stack.
 
 Tasks:
@@ -171,6 +176,18 @@ Exit criteria:
 - The platform state is remote, encrypted, versioned, and locked.
 
 ### Phase 3: Build networking and encryption
+
+Network layer status: **Applied — July 22, 2026**
+
+- Applied plan: `infra/network.tfplan` (ignored by Git)
+- Applied resources: 18 added, 0 changed, 0 destroyed
+- Selected AZs: `us-east-1a`, `us-east-1b`, and `us-east-1c`
+- Verified VPC ID: `vpc-0c387d5db5c39529b`
+- KMS layer status: **Planned — awaiting manual apply**
+- KMS saved plan: `infra/kms.tfplan` (ignored by Git)
+- KMS plan summary: 2 resources to add, 0 to change, 0 to destroy
+- The layer creates one rotating customer-managed platform key and its alias;
+  IAM and EKS remain separate later layers.
 
 Implement `vpc.tf` and `kms.tf`.
 

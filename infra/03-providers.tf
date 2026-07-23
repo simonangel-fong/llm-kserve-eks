@@ -1,4 +1,4 @@
-
+# providers.tf
 
 terraform {
   required_version = ">= 1.10.0, < 2.0.0"
@@ -14,7 +14,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = local.aws_region
 
   default_tags {
     tags = local.default_tags
