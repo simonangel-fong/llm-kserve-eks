@@ -249,10 +249,10 @@ EKS networking bootstrap layer status: **Applied — July 22, 2026**
   CNI Pod Identity role before worker nodes are created.
 - Creates no node group, EC2 instance, storage driver, or application workload.
 
-General node-group layer status: **Planned — awaiting manual apply**
+General node-group layer status: **Applied — July 22, 2026**
 
-- Saved plan: `infra/eks-general-nodes.tfplan` (ignored by Git)
-- Plan summary: 2 resources to add, 2 to update in place, 0 to destroy
+- Applied plan: `infra/eks-general-nodes.tfplan` (ignored by Git)
+- Applied changes: 2 resources added, 2 updated in place, 0 destroyed
 - Creates one AL2023 `t3.large` On-Demand managed node group with `1 / 1 / 3`
   scaling and the `workload=general` label.
 - Creates a launch template with an encrypted 50 GiB gp3 root volume, IMDSv2
@@ -260,6 +260,17 @@ General node-group layer status: **Planned — awaiting manual apply**
 - Extends the platform KMS key policy for the existing Auto Scaling service-linked
   role. The EBS CSI inline policy is recalculated against the unchanged key ARN.
 - Creates no GPU node, storage add-on, Helm release, or application workload.
+
+Core add-ons and storage-driver layer status: **Planned — awaiting manual apply**
+
+- Saved plan: `infra/eks-core-addons.tfplan` (ignored by Git)
+- Plan summary: 4 resources to add, 0 to change, 0 to destroy
+- Converts CoreDNS and kube-proxy to pinned EKS managed add-ons.
+- Installs the EBS CSI managed add-on and associates its controller service
+  account with the dedicated EBS CSI Pod Identity role.
+- Selected versions: CoreDNS `v1.14.3-eksbuild.3`, kube-proxy
+  `v1.35.3-eksbuild.17`, and EBS CSI `v1.62.0-eksbuild.1`.
+- Creates no StorageClass, PVC, GPU node, Helm release, or application workload.
 
 Implement `eks.tf` and the base portions of `iam.tf`.
 

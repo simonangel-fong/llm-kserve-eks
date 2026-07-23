@@ -84,3 +84,23 @@ output "eks_general_node_group_name" {
   description = "Name of the general-purpose EKS managed node group."
   value       = aws_eks_node_group.general.node_group_name
 }
+
+output "eks_coredns_version" {
+  description = "Pinned CoreDNS EKS add-on version."
+  value       = aws_eks_addon.coredns.addon_version
+}
+
+output "eks_kube_proxy_version" {
+  description = "Pinned kube-proxy EKS add-on version."
+  value       = aws_eks_addon.kube_proxy.addon_version
+}
+
+output "eks_ebs_csi_version" {
+  description = "Pinned EBS CSI EKS add-on version."
+  value       = aws_eks_addon.ebs_csi.addon_version
+}
+
+output "kubernetes_default_storage_class" {
+  description = "Default encrypted gp3 StorageClass used by application PVCs."
+  value       = kubernetes_storage_class_v1.gp3_encrypted.metadata[0].name
+}
