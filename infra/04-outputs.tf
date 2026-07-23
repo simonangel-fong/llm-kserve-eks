@@ -49,3 +49,23 @@ output "ebs_csi_pod_identity_role_arn" {
   description = "ARN of the EBS CSI EKS Pod Identity role."
   value       = aws_iam_role.ebs_csi.arn
 }
+
+output "eks_cluster_name" {
+  description = "Name of the EKS cluster."
+  value       = aws_eks_cluster.this.name
+}
+
+output "eks_cluster_endpoint" {
+  description = "Endpoint of the EKS Kubernetes API."
+  value       = aws_eks_cluster.this.endpoint
+}
+
+output "eks_cluster_security_group_id" {
+  description = "ID of the security group created by EKS for the cluster."
+  value       = aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
+}
+
+output "eks_administrator_principal_arn" {
+  description = "IAM principal granted cluster-administrator access through an EKS access entry."
+  value       = aws_eks_access_entry.administrator.principal_arn
+}

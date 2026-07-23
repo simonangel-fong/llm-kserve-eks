@@ -219,15 +219,25 @@ Exit criteria:
 
 ### Phase 4: Provision EKS, access, and node groups
 
-IAM prerequisite layer status: **Planned — awaiting manual apply**
+IAM prerequisite layer status: **Applied — July 22, 2026**
 
-- Saved plan: `infra/iam.tfplan` (ignored by Git)
-- Plan summary: 10 resources to add, 0 to change, 0 to destroy
+- Applied plan: `infra/iam.tfplan` (ignored by Git)
+- Applied resources: 10 added, 0 changed, 0 destroyed
 - Creates separate EKS control-plane, worker-node, VPC CNI Pod Identity, and EBS
   CSI Pod Identity roles.
 - Attaches AWS-managed least-privilege service policies and grants the EBS CSI
   role access only to the platform KMS key.
 - Creates no EKS cluster, node group, EC2 instance, or Kubernetes resource.
+
+EKS control-plane layer status: **Planned — awaiting manual apply**
+
+- Saved plan: `infra/eks-control-plane.tfplan` (ignored by Git)
+- Plan summary: 4 resources to add, 2 to update in place, 0 to destroy
+- Creates the EKS 1.35 control plane, encrypted 30-day CloudWatch log group,
+  administrator access entry, and cluster-admin policy association.
+- Updates the platform KMS key policy for the EKS log group. The EBS CSI inline
+  policy is recalculated against the same unchanged key ARN.
+- Creates no managed node group, EC2 instance, or Kubernetes add-on.
 
 Implement `eks.tf` and the base portions of `iam.tf`.
 
