@@ -29,3 +29,23 @@ output "platform_kms_key_arn" {
   description = "ARN of the customer-managed KMS key for EKS secrets and workload storage."
   value       = aws_kms_key.platform.arn
 }
+
+output "eks_cluster_role_arn" {
+  description = "ARN of the EKS control-plane IAM role."
+  value       = aws_iam_role.eks_cluster.arn
+}
+
+output "eks_node_role_arn" {
+  description = "ARN of the EKS managed-node-group IAM role."
+  value       = aws_iam_role.eks_node.arn
+}
+
+output "vpc_cni_pod_identity_role_arn" {
+  description = "ARN of the VPC CNI EKS Pod Identity role."
+  value       = aws_iam_role.vpc_cni.arn
+}
+
+output "ebs_csi_pod_identity_role_arn" {
+  description = "ARN of the EBS CSI EKS Pod Identity role."
+  value       = aws_iam_role.ebs_csi.arn
+}

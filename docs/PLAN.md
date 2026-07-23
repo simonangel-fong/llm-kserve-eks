@@ -183,9 +183,9 @@ Network layer status: **Applied — July 22, 2026**
 - Applied resources: 18 added, 0 changed, 0 destroyed
 - Selected AZs: `us-east-1a`, `us-east-1b`, and `us-east-1c`
 - Verified VPC ID: `vpc-0c387d5db5c39529b`
-- KMS layer status: **Planned — awaiting manual apply**
-- KMS saved plan: `infra/kms.tfplan` (ignored by Git)
-- KMS plan summary: 2 resources to add, 0 to change, 0 to destroy
+- KMS layer status: **Applied — July 22, 2026**
+- Applied KMS plan: `infra/kms.tfplan` (ignored by Git)
+- Applied KMS resources: 2 added, 0 changed, 0 destroyed
 - The layer creates one rotating customer-managed platform key and its alias;
   IAM and EKS remain separate later layers.
 
@@ -218,6 +218,16 @@ Exit criteria:
 - The network plan matches the CIDRs and routing model in `docs/SPEC.md`.
 
 ### Phase 4: Provision EKS, access, and node groups
+
+IAM prerequisite layer status: **Planned — awaiting manual apply**
+
+- Saved plan: `infra/iam.tfplan` (ignored by Git)
+- Plan summary: 10 resources to add, 0 to change, 0 to destroy
+- Creates separate EKS control-plane, worker-node, VPC CNI Pod Identity, and EBS
+  CSI Pod Identity roles.
+- Attaches AWS-managed least-privilege service policies and grants the EBS CSI
+  role access only to the platform KMS key.
+- Creates no EKS cluster, node group, EC2 instance, or Kubernetes resource.
 
 Implement `eks.tf` and the base portions of `iam.tf`.
 
