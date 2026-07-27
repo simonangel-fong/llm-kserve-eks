@@ -1,19 +1,18 @@
-# providers.tf
+# 03-providers.tf
 
 terraform {
-  required_version = ">= 1.10.0, < 2.0.0"
+  required_version = ">= 1.9"
 
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.0"
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 3.0"
     }
   }
-
   backend "s3" {}
 }
 
@@ -25,20 +24,15 @@ provider "aws" {
   }
 }
 
-provider "kubernetes" {
-  host                   = aws_eks_cluster.this.endpoint
-  cluster_ca_certificate = base64decode(aws_eks_cluster.this.certificate_authority[0].data)
+provider "helm" {
+  kubernetes = {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args = [
-      "eks",
-      "get-token",
-      "--cluster-name",
-      aws_eks_cluster.this.name,
-      "--region",
-      local.aws_region,
-    ]
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--region", local.aws_region]
+    }
   }
 }

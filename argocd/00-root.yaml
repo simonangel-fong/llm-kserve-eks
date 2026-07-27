@@ -1,0 +1,30 @@
+# 00-root.yaml
+#   kubectl apply -f argocd/00-root.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: 00-root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/simonangel-fong/kserve.git
+    targetRevision: master
+    path: argocd/apps
+    directory:
+      recurse: false
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      # Deleting a file from argocd/apps/ removes that workload from the cluster.
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

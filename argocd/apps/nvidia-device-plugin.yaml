@@ -1,0 +1,29 @@
+# nvidia-device-plugin.yaml
+# Advertises nvidia.com/gpu on GPU nodes 
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nvidia-device-plugin
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+
+  source:
+    repoURL: https://nvidia.github.io/k8s-device-plugin
+    chart: nvidia-device-plugin
+    targetRevision: "0.19.3"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

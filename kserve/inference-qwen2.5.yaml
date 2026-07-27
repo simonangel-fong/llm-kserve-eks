@@ -1,0 +1,36 @@
+# inference.yaml
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: qwen-llm
+  namespace: llm
+spec:
+  predictor:
+    # taint and tolerations: GPU
+    tolerations:
+      - key: nvidia.com/gpu
+        effect: NoSchedule
+        operator: Exists
+
+    model:
+      modelFormat:
+        name: huggingface
+
+      args:
+        - --model_name=qwen
+        - --enable-auto-tool-choice
+        - --tool-call-parser=hermes
+
+      storageUri: "hf://Qwen/Qwen2.5-0.5B-Instruct"
+
+      resources:
+        requests:
+          cpu: "1"
+          memory: 4Gi
+          nvidia.com/gpu: "1"
+        limits:
+          cpu: "2"
+          memory: 6Gi
+          # GPUs are not shareable; requests and limits must match.
+          nvidia.com/gpu: "1"

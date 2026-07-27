@@ -1,106 +1,50 @@
-# outputs.tf
+# 04-outputs.tf
 
-output "vpc_id" {
-  description = "ID of the VPC used by EKS."
-  value       = aws_vpc.this.id
+# ##############################
+# EKS
+# ##############################
+output "cluster_name" {
+  description = "EKS cluster name."
+  value       = module.eks.cluster_name
 }
 
-output "availability_zones" {
-  description = "Availability Zones used by the network layer."
-  value       = local.availability_zones
+output "cluster_endpoint" {
+  description = "Kubernetes API server endpoint."
+  value       = module.eks.cluster_endpoint
 }
 
-output "public_subnet_ids" {
-  description = "IDs of the public subnets used for NAT and future public load balancers."
-  value       = [for index in range(local.vpc_az_count) : aws_subnet.public[index].id]
+output "configure_kubectl" {
+  description = "Command to write this cluster into your kubeconfig."
+  value       = "aws eks update-kubeconfig --region ${local.aws_region} --name ${module.eks.cluster_name}"
 }
 
-output "private_subnet_ids" {
-  description = "IDs of the private subnets reserved for EKS worker nodes."
-  value       = [for index in range(local.vpc_az_count) : aws_subnet.private[index].id]
+# ##############################
+# Karpenter
+# ##############################
+output "karpenter_node_iam_role_name" {
+  description = "IAM role assumed by Karpenter-launched nodes."
+  value       = module.karpenter.node_iam_role_name
 }
 
-output "nat_gateway_id" {
-  description = "ID of the single dev NAT Gateway."
-  value       = aws_nat_gateway.this.id
+output "karpenter_discovery_tag" {
+  description = "Value of the karpenter.sh/discovery tag on subnets and security groups."
+  value       = local.karpenter_discovery
 }
 
-output "platform_kms_key_arn" {
-  description = "ARN of the customer-managed KMS key for EKS secrets and workload storage."
-  value       = aws_kms_key.platform.arn
+output "karpenter_queue_name" {
+  description = "SQS queue Karpenter watches for interruption notices."
+  value       = module.karpenter.queue_name
 }
 
-output "eks_cluster_role_arn" {
-  description = "ARN of the EKS control-plane IAM role."
-  value       = aws_iam_role.eks_cluster.arn
+# ##############################
+# Argo CD
+# ##############################
+output "argocd_initial_admin_password" {
+  description = "Command to read the generated admin password."
+  value       = "kubectl -n ${local.argocd_namespace} get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d"
 }
 
-output "eks_node_role_arn" {
-  description = "ARN of the EKS managed-node-group IAM role."
-  value       = aws_iam_role.eks_node.arn
-}
-
-output "vpc_cni_pod_identity_role_arn" {
-  description = "ARN of the VPC CNI EKS Pod Identity role."
-  value       = aws_iam_role.vpc_cni.arn
-}
-
-output "ebs_csi_pod_identity_role_arn" {
-  description = "ARN of the EBS CSI EKS Pod Identity role."
-  value       = aws_iam_role.ebs_csi.arn
-}
-
-output "eks_cluster_name" {
-  description = "Name of the EKS cluster."
-  value       = aws_eks_cluster.this.name
-}
-
-output "eks_cluster_endpoint" {
-  description = "Endpoint of the EKS Kubernetes API."
-  value       = aws_eks_cluster.this.endpoint
-}
-
-output "eks_cluster_security_group_id" {
-  description = "ID of the security group created by EKS for the cluster."
-  value       = aws_eks_cluster.this.vpc_config[0].cluster_security_group_id
-}
-
-output "eks_administrator_principal_arn" {
-  description = "IAM principal granted cluster-administrator access through an EKS access entry."
-  value       = aws_eks_access_entry.administrator.principal_arn
-}
-
-output "eks_pod_identity_agent_version" {
-  description = "Pinned EKS Pod Identity Agent add-on version selected for this cluster."
-  value       = aws_eks_addon.pod_identity_agent.addon_version
-}
-
-output "eks_vpc_cni_version" {
-  description = "Pinned VPC CNI add-on version selected for this cluster."
-  value       = aws_eks_addon.vpc_cni.addon_version
-}
-
-output "eks_general_node_group_name" {
-  description = "Name of the general-purpose EKS managed node group."
-  value       = aws_eks_node_group.general.node_group_name
-}
-
-output "eks_coredns_version" {
-  description = "Pinned CoreDNS EKS add-on version."
-  value       = aws_eks_addon.coredns.addon_version
-}
-
-output "eks_kube_proxy_version" {
-  description = "Pinned kube-proxy EKS add-on version."
-  value       = aws_eks_addon.kube_proxy.addon_version
-}
-
-output "eks_ebs_csi_version" {
-  description = "Pinned EBS CSI EKS add-on version."
-  value       = aws_eks_addon.ebs_csi.addon_version
-}
-
-output "kubernetes_default_storage_class" {
-  description = "Default encrypted gp3 StorageClass used by application PVCs."
-  value       = kubernetes_storage_class_v1.gp3_encrypted.metadata[0].name
+output "argocd_port_forward" {
+  description = "Command to reach the Argo CD UI at http://localhost:8080."
+  value       = "kubectl -n ${local.argocd_namespace} port-forward svc/argocd-server 8080:80"
 }

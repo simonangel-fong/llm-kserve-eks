@@ -1,0 +1,34 @@
+# # llm.yaml
+# # InferenceServices in the llm namespace.
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: kserve-llm
+#   namespace: argocd
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io/background
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "5"
+# spec:
+#   project: default
+
+#   source:
+#     repoURL: https://github.com/simonangel-fong/kserve.git
+#     targetRevision: master
+#     path: kserve
+
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: llm
+
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#     retry:
+#       limit: 5
+#       backoff:
+#         duration: 15s
+#         maxDuration: 3m

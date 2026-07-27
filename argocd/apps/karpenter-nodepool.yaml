@@ -1,0 +1,32 @@
+# Karpenter NodePools + EC2NodeClasses.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter-nodepool
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/simonangel-fong/kserve.git
+    targetRevision: master
+    path: argocd/apps/karpenter
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      # The CRDs may not be established on the first attempt.
+      limit: 5
+      backoff:
+        duration: 15s
+        maxDuration: 3m

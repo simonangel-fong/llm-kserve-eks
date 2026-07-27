@@ -1,0 +1,50 @@
+# karpenter.yaml
+# Karpenter controller
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+spec:
+  project: default
+
+  source:
+    repoURL: public.ecr.aws/karpenter
+    chart: karpenter
+    targetRevision: "1.14.0"
+
+    helm:
+      valuesObject:
+        settings:
+          clusterName: kserve-dev
+          clusterEndpoint: https://809A851E5891111FE59D6337B59622BD.gr7.us-east-1.eks.amazonaws.com
+          interruptionQueue: Karpenter-kserve-dev
+
+        serviceAccount:
+          name: karpenter
+
+        nodeSelector:
+          role: bootstrap
+
+        replicas: 1
+
+        controller:
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 512Mi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

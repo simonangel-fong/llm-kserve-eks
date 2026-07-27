@@ -1,0 +1,66 @@
+# general.yaml
+
+# EC2NodeClass: underlying infrastructure: AMI, IAM role, subnets, security groups.
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: general
+spec:
+  role: kserve-dev-karpenter-node
+
+  amiSelectorTerms:
+    - alias: al2023@latest
+
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: kserve-dev
+
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: kserve-dev
+
+  tags:
+    karpenter.sh/discovery: kserve-dev
+---
+# NodePool: capacity: Burstable (t), balanced (m);
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: general
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: general
+
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["t", "m"]
+        - key: karpenter.k8s.aws/instance-generation
+          operator: Gt
+          values: ["4"]
+        # Keep the blast radius of a single node small.
+        - key: karpenter.k8s.aws/instance-cpu
+          operator: In
+          values: ["2", "4", "8"]
+
+      # Recycle nodes after 30 days so they pick up fresh AMIs.
+      expireAfter: 720h
+
+  # CPU Cap: sum of this pool
+  limits:
+    cpu: 100
+
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+---

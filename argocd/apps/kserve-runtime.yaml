@@ -1,0 +1,41 @@
+# kserve-runtime.yaml
+# ClusterServingRuntimes: huggingface, sklearn, triton, etc
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kserve-runtime
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/background
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  project: default
+
+  source:
+    repoURL: ghcr.io/kserve/charts
+    chart: kserve-runtime-configs
+    targetRevision: "v0.19.0"
+
+    helm:
+      valuesObject:
+        kserve:
+          servingruntime:
+            enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kserve
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 15s
+        maxDuration: 3m

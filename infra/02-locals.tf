@@ -1,41 +1,48 @@
-# locals.tf
+# 02-locals.tf
+
+data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
 
 locals {
   # ##############################
   # Metadata
   # ##############################
-  project     = "llm-ollama-eks"
-  name_prefix = "${local.project}-${var.env}"
-  aws_region  = "us-east-1"
-  default_tags = merge(
-    {
-      Project     = local.project
-      Environment = var.env
-      ManagedBy   = "Terraform"
-      Repository  = "llm-ollama-eks"
-    },
-    var.tags
-  )
+  project     = "kserve"
+  prefix_name = "${local.project}-${var.env}"
 
   # ##############################
-  # VPC
+  # Providers
   # ##############################
-  vpc_cidr     = "10.0.0.0/16"
-  vpc_az_count = 3
+  aws_region = "us-east-1"
+  default_tags = {
+    Project   = local.project
+    Env       = var.env
+    ManagedBy = "Terraform"
+  }
+
+  # ##############################
+  # Network
+  # ##############################
+  vpc_cidr = "10.0.0.0/16"
+  vpc_azs  = slice(data.aws_availability_zones.available.names, 0, 2) # 2 AZs
 
   # ##############################
   # EKS
   # ##############################
-  eks_cluster_name = "${local.name_prefix}-eks"
-  eks_version      = "1.35"
+  eks_version             = "1.36"
+  eks_bootstrap_node_type = "t3.medium"
+  eks_bootstrap_node_ami  = "AL2023_x86_64_STANDARD"
 
-  eks_cpu_node_instance_types = ["t3.large"]
-  eks_cpu_node_min            = 1
-  eks_cpu_node_desired        = 1
-  eks_cpu_node_max            = 3
+  # ##############################
+  # Karpenter
+  # ##############################
+  karpenter_version   = "1.14.0"
+  karpenter_discovery = local.prefix_name
 
-  eks_gpu_node_instance_types = ["g5.xlarge"]
-  eks_gpu_node_min            = 0
-  eks_gpu_node_desired        = 0
-  eks_gpu_node_max            = 2
+  # ##############################
+  # Argo CD
+  # ##############################
+  argocd_version   = "10.2.1"
+  argocd_namespace = "argocd"
 }

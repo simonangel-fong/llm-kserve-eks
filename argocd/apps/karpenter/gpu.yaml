@@ -1,0 +1,96 @@
+# gpu.yaml
+
+# Example to schedule:
+# resource request:
+#   tolerations:
+#     - key: nvidia.com/gpu
+#       effect: NoSchedule
+#       operator: Exists
+#   resources:
+#     limits:
+#       nvidia.com/gpu: 1
+---
+# EC2NodeClass: underlying infrastructure: AMI, IAM role, subnets, security groups.
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: gpu
+spec:
+  role: kserve-dev-karpenter-node
+
+  amiFamily: AL2023
+
+  amiSelectorTerms:
+    - ssmParameter: /aws/service/eks/optimized-ami/1.36/amazon-linux-2023/x86_64/nvidia/recommended/image_id
+
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: kserve-dev
+
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: kserve-dev
+
+  # Container images for model serving are large; the 20Gi default fills up.
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 100Gi
+        volumeType: gp3
+        deleteOnTermination: true
+
+  tags:
+    karpenter.sh/discovery: kserve-dev
+---
+
+---
+# NodePool: capacity: g6 (L4) for inference;
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: gpu
+spec:
+  template:
+    metadata:
+      labels:
+        node-role: gpu
+        # The nvidia-device-plugin daemonset selects on this label.
+        nvidia.com/gpu.present: "true"
+
+    spec:
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: gpu
+
+      # taint and toleration to land on a GPU node
+      taints:
+        - key: nvidia.com/gpu
+          effect: NoSchedule
+
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["g6"]
+        # Single-GPU sizes only; multi-GPU boxes are a large jump in cost.
+        - key: karpenter.k8s.aws/instance-gpu-count
+          operator: In
+          values: ["1"]
+
+      expireAfter: 720h
+
+  # Cap: sum cpu; sum GPU
+  limits:
+    cpu: 32
+    nvidia.com/gpu: 2
+
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    # GPU pods are slow to start; give them longer before reclaiming the node.
+    consolidateAfter: 5m
