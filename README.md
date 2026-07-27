@@ -123,6 +123,16 @@ spec:
 
 ## Test with Open WebUI
 
+- Model: `Qwen2.5`
+- Application: `KServe` + `Open WebUI`
+- Task set:
+
+| Task                 | Prompt                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Factual retrieval    | `What is the capital of Japan?`                                                                                                |
+| Long text generation | `Create a detailed weekend trip plan for Tokyo, including morning, afternoon, and evening activities for Saturday and Sunday.` |
+| Text summarization   | Summarize a 2,600-word article with: `Provide a 3-bullet-point summary of this text.`                                          |
+
 - Factual retrieval
 
 ![pic](./docs/img/test_factual_retrieval.png)
