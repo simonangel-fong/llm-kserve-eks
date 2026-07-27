@@ -62,6 +62,10 @@ flowchart TB
 | Serving           | KServe                 | Runs the `InferenceService` on the HuggingFace/vLLM serving runtime                |
 | Frontend          | Open WebUI             | Chat UI that talks to the predictor over the OpenAI-compatible API                 |
 
+- Apps managed by `Argo CD`
+
+![argocd](./docs/img/argocd_apps.png)
+
 ---
 
 ## Key Code Blocks
