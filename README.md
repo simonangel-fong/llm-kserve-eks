@@ -2,6 +2,8 @@
 
 An inference service serving the `Qwen2.5` model on an NVIDIA GPU, exposed through `KServe` and `Open WebUI`.
 
+![KServe](https://img.shields.io/badge/KServe-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white&style=plastic) ![Argo CD](https://img.shields.io/badge/Argo%20CD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white&style=plastic) ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white&style=plastic) ![Amazon EKS](https://img.shields.io/badge/Amazon%20EKS-FF9900?style=for-the-badge&logo=amazoneks&logoColor=white&style=plastic) ![Karpenter](https://img.shields.io/badge/Karpenter-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white&style=plastic) ![cert--manager](https://img.shields.io/badge/cert--manager-326CE5?style=for-the-badge&logo=letsencrypt&logoColor=white&style=plastic)
+
 - [LLM Deployment with KServe (EKS, Karpenter, and Argo CD)](#llm-deployment-with-kserve-eks-karpenter-and-argo-cd)
   - [System Architecture](#system-architecture)
     - [Components](#components)
@@ -49,6 +51,8 @@ flowchart TB
     isvc -- "pulls model weights" --> hf
     plugin -- "advertises nvidia.com/gpu" --> isvc
 ```
+
+---
 
 ### Components
 
